@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucas | Cybersecurity Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <canvas id="cyberNetwork" aria-hidden="true"></canvas>
+
+    <section id="gate" class="gate" aria-label="Tela de entrada">
+        <div class="gate-panel" id="gatePanelContent">
+            <p class="gate-label">ACCESS CONTROL</p>
+            <h1>Lucas Cybersecurity Interface</h1>
+            <p class="gate-text">
+                Portfólio para projetos, documentação técnica e pesquisas em segurança ofensiva e defensiva.
+            </p>
+            <div class="gate-actions">
+                <button id="enterPortfolio" class="btn btn-primary" type="button">Entrar no Portfólio</button>
+                <a class="btn btn-outline" href="https://www.linkedin.com/in/c-lucas-carvalho" target="_blank" rel="noopener noreferrer">Meu Linkedin</a>
+            </div>
+        </div>
+
+        <div class="login-terminal" id="loginTerminal" hidden>
+            <div class="terminal-line"><span class="terminal-prompt">></span> USERNAME: <span class="terminal-input user-input" id="termUser"></span></div>
+            <div class="terminal-line"><span class="terminal-prompt">></span> PASSWORD: <span class="terminal-input pass-input" id="termPass"></span></div>
+            <div class="terminal-line status-line" id="termStatus"></div>
+        </div>
+    </section>
+
+    <div id="app" class="app" hidden>
+        <header class="main-header">
+            <div class="brand">
+                <span class="brand-prefix">></span>
+                <span class="brand-name">lucas_<span class="brand-red">carvalho</span></span>
+            </div>
+
+            <nav class="main-nav" aria-label="Navegação principal">
+                <button class="main-nav-btn active" data-scroll-target="sobre" type="button">Sobre Mim</button>
+                <button class="main-nav-btn" data-scroll-target="projetos" type="button">Projetos</button>
+            </nav>
+
+            <div class="header-actions">
+                <a class="header-action profile-link" href="https://www.linkedin.com/in/c-lucas-carvalho" target="_blank" rel="noopener noreferrer">Meu Linkedin</a>
+                <button id="backToGate" class="header-action" type="button">Voltar</button>
+            </div>
+        </header>
+
+        <main>
+            <section id="sobre" class="about-section page-section">
+                <div class="section-title">
+                    <h2>Sobre Mim</h2>
+                    
+                </div>
+
+                <div class="about-card about-layout">
+                    <div class="about-info">
+                        <p>
+                            Sou Desenvolvedor de Software com sólida base em infraestrutura de TI, buscando minha primeira oportunidade oficial em Cibersegurança. Minha transição de carreira é impulsionada pela visão de que, para proteger um sistema, é preciso primeiro entender como ele é construído e como pode ser explorado.
+                        </p>
+                        <p>
+                            Através da minha pós-graduação e de laboratórios práticos, desenvolvo um perfil focado no conceito de Purple Team. Utilizo técnicas de Red Team e Pentest (exploração, evasão e persistência) para testar e aprimorar operações de Blue Team. Construo ambientes corporativos simulados onde aplico ataques em tempo real para validar a eficácia da engenharia de detecção, SIEM e resposta automatizada (SOC).
+                        </p>
+                        <ul class="terminal-bullets">
+                            <li><span class="bullet-keyword">Momento atual:</span> Em transição de carreira, buscando a primeira oportunidade profissional em Cibersegurança.</li>
+                            <li><span class="bullet-keyword">Mindset (Purple Team):</span> Visão ofensiva (Red Team/Pentest) aplicada à inteligência de defesa (Blue Team/DFIR).</li>
+                            <li><span class="bullet-keyword">Background:</span> Dev Full Stack, Suporte de Infraestrutura e Pós-graduando em Cyber Offensive (Impacta).</li>
+                        </ul>
+                    </div>
+
+                    <aside class="about-visual" aria-label="Retrato com interface hacker">
+                        <img class="about-photo" src="eu_bom.png" alt="Foto de Lucas">
+                        <div class="about-overlay" aria-hidden="true">
+                            <span class="overlay-scanline"></span>
+                            <span class="overlay-grid"></span>
+                            <span class="overlay-target-eye"></span>
+                            <span class="overlay-float overlay-float-a"></span>
+                            <span class="overlay-float overlay-float-b"></span>
+                            <span class="overlay-float overlay-float-c"></span>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="projetos" class="projects-section page-section">
+                <section class="hero">
+                    
+                    <h2>Projetos e documentação por categoria</h2>
+                    <p>
+                        Estudando, testando e documentando práticas em Pentest, Redes, Blue Team e Forense.
+                    </p>
+                </section>
+
+                <section class="projects-section">
+                    <div class="section-title">
+                        <h2>Projetos</h2>
+                        <p>Clique em um card para abrir a central de detalhes com documentação, mídia e repositório.</p>
+                    </div>
+
+                    <div class="filters" aria-label="Filtro por categoria">
+                        <button class="filter-btn active" data-filter="all" type="button">Todos</button>
+                        <button class="filter-btn" data-filter="red-team" type="button">Red Team</button>
+                        <button class="filter-btn" data-filter="redes" type="button">Redes</button>
+                        <button class="filter-btn" data-filter="blue-team" type="button">Blue Team</button>
+                        <button class="filter-btn" data-filter="forense" type="button">Forense</button>
+                    </div>
+
+                    <div id="projectsGrid" class="projects-grid"></div>
+                </section>
+            </section>
+        </main>
+
+        <footer>
+            <p class="footer-status">
+                SISTEMA COMPROMETIDO
+                <span class="loading-dots" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                </span>
+            </p>
+            <p class="footer-copy">&copy; 2026 Lucas | Cyber Portfolio</p>
+        </footer>
+    </div>
+
+    <div id="projectModal" class="modal" hidden>
+        <div class="modal-backdrop" data-close-modal="true"></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalProjectTitle">
+            <button id="closeModal" class="modal-close" type="button" aria-label="Fechar modal">X</button>
+
+            <div class="modal-head">
+                <h3 id="modalProjectTitle">Projeto</h3>
+                <span id="modalProjectCategory" class="tag"></span>
+            </div>
+
+            <nav class="modal-nav" aria-label="Navegação do modal">
+                <button class="modal-tab active" data-modal-tab="docs" type="button">Documentação</button>
+                <button class="modal-tab" data-modal-tab="media" type="button">Mídia</button>
+                <button class="modal-tab" data-modal-tab="repo" type="button">Repositório</button>
+            </nav>
+
+            <div class="modal-content">
+                <section id="modal-panel-docs" class="modal-panel active"></section>
+                <section id="modal-panel-media" class="modal-panel"></section>
+                <section id="modal-panel-repo" class="modal-panel"></section>
+            </div>
+        </div>
+    </div>
+
+    <div id="mediaLightbox" class="media-lightbox" hidden>
+        <div class="media-lightbox-backdrop" data-close-media-lightbox="true"></div>
+        <figure class="media-lightbox-content">
+            <button id="closeMediaLightbox" class="media-lightbox-close" type="button" aria-label="Fechar visualizacao de imagem">X</button>
+            <img id="mediaLightboxImage" class="media-lightbox-image" src="" alt="Imagem ampliada do projeto">
+            <figcaption id="mediaLightboxCaption" class="media-lightbox-caption"></figcaption>
+        </figure>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
