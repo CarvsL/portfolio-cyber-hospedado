@@ -17,6 +17,9 @@
     const navTabs = document.querySelectorAll('.main-nav-btn');
     const aboutSection = document.getElementById('sobre');
     const projectsSection = document.getElementById('projetos');
+    const aboutVisual = document.querySelector('.about-visual');
+    const aboutPhoto = document.querySelector('.about-photo');
+    const overlayTargetEye = document.querySelector('.overlay-target-eye');
 
     const modal = document.getElementById('projectModal');
     const closeModalBtn = document.getElementById('closeModal');
@@ -198,6 +201,150 @@
         const binary = atob(sanitized);
         const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
         return new TextDecoder().decode(bytes);
+    }
+
+    function parseObjectPositionToken(token, axis) {
+        const value = String(token || '').trim().toLowerCase();
+        if (!value) {
+            return 0.5;
+        }
+
+        if (value.endsWith('%')) {
+            const numeric = Number.parseFloat(value);
+            if (Number.isFinite(numeric)) {
+                return Math.max(0, Math.min(1, numeric / 100));
+            }
+        }
+
+        if (axis === 'x') {
+            if (value === 'left') return 0;
+            if (value === 'right') return 1;
+        } else {
+            if (value === 'top') return 0;
+            if (value === 'bottom') return 1;
+        }
+
+        if (value === 'center') {
+            return 0.5;
+        }
+
+        return 0.5;
+    }
+
+    function getObjectPositionFactors(objectPositionValue) {
+        const tokens = String(objectPositionValue || '50% 50%')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+        let xToken = tokens[0] || '50%';
+        let yToken = tokens[1] || '50%';
+
+        if (tokens.length === 1) {
+            const single = tokens[0].toLowerCase();
+            if (single === 'top' || single === 'bottom') {
+                xToken = '50%';
+                yToken = single;
+            } else {
+                xToken = single;
+                yToken = '50%';
+            }
+        }
+
+        return {
+            x: parseObjectPositionToken(xToken, 'x'),
+            y: parseObjectPositionToken(yToken, 'y')
+        };
+    }
+
+    function getRenderedImageGeometry(containerWidth, containerHeight, imageWidth, imageHeight, objectFit, objectPosition) {
+        let renderedWidth = containerWidth;
+        let renderedHeight = containerHeight;
+
+        if (objectFit === 'none') {
+            renderedWidth = imageWidth;
+            renderedHeight = imageHeight;
+        } else if (objectFit === 'contain') {
+            const containScale = Math.min(containerWidth / imageWidth, containerHeight / imageHeight);
+            renderedWidth = imageWidth * containScale;
+            renderedHeight = imageHeight * containScale;
+        } else if (objectFit === 'cover') {
+            const coverScale = Math.max(containerWidth / imageWidth, containerHeight / imageHeight);
+            renderedWidth = imageWidth * coverScale;
+            renderedHeight = imageHeight * coverScale;
+        } else if (objectFit === 'scale-down') {
+            const containScale = Math.min(1, Math.min(containerWidth / imageWidth, containerHeight / imageHeight));
+            renderedWidth = imageWidth * containScale;
+            renderedHeight = imageHeight * containScale;
+        }
+
+        const offsets = getObjectPositionFactors(objectPosition);
+        const offsetX = (containerWidth - renderedWidth) * offsets.x;
+        const offsetY = (containerHeight - renderedHeight) * offsets.y;
+
+        return {
+            renderedWidth,
+            renderedHeight,
+            offsetX,
+            offsetY
+        };
+    }
+
+    function updateEyeTargetPosition() {
+        if (!aboutVisual || !aboutPhoto || !overlayTargetEye || !aboutPhoto.naturalWidth || !aboutPhoto.naturalHeight) {
+            return;
+        }
+
+        const containerRect = aboutVisual.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        const containerHeight = containerRect.height;
+        if (!containerWidth || !containerHeight) {
+            return;
+        }
+
+        const computed = window.getComputedStyle(aboutPhoto);
+        const objectFit = computed.objectFit || 'fill';
+        const objectPosition = computed.objectPosition || '50% 50%';
+
+        const geometry = getRenderedImageGeometry(
+            containerWidth,
+            containerHeight,
+            aboutPhoto.naturalWidth,
+            aboutPhoto.naturalHeight,
+            objectFit,
+            objectPosition
+        );
+
+        const eyeX = Number.parseFloat(aboutPhoto.dataset.eyeX || '0.63');
+        const eyeY = Number.parseFloat(aboutPhoto.dataset.eyeY || '0.30');
+        const eyeXClamped = Number.isFinite(eyeX) ? Math.max(0, Math.min(1, eyeX)) : 0.63;
+        const eyeYClamped = Number.isFinite(eyeY) ? Math.max(0, Math.min(1, eyeY)) : 0.30;
+
+        const x = geometry.offsetX + (geometry.renderedWidth * eyeXClamped);
+        const y = geometry.offsetY + (geometry.renderedHeight * eyeYClamped);
+
+        overlayTargetEye.style.left = `${x}px`;
+        overlayTargetEye.style.top = `${y}px`;
+    }
+
+    function setupEyeTargetTracking() {
+        if (!aboutVisual || !aboutPhoto || !overlayTargetEye) {
+            return;
+        }
+
+        const scheduleUpdate = () => window.requestAnimationFrame(updateEyeTargetPosition);
+
+        if (aboutPhoto.complete && aboutPhoto.naturalWidth) {
+            scheduleUpdate();
+        }
+
+        aboutPhoto.addEventListener('load', scheduleUpdate);
+        window.addEventListener('resize', scheduleUpdate);
+
+        if ('ResizeObserver' in window) {
+            const observer = new ResizeObserver(() => scheduleUpdate());
+            observer.observe(aboutVisual);
+        }
     }
 
     function getGitHubRepoInfo(repoUrl) {
@@ -970,6 +1117,8 @@
     if (projectsSection) {
         sectionObserver.observe(projectsSection);
     }
+
+    setupEyeTargetTracking();
 
     filterBtns.forEach((btn) => {
         btn.addEventListener('click', () => {

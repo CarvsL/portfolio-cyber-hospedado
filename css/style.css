@@ -601,7 +601,7 @@ main {
     position: absolute;
     width: 52px;
     height: 52px;
-    left: 63%; /* Ajustado pra acompanhar a foto que foi mais para a esquerda */
+    left: 63%;
     top: 30%;
     border: 2px solid rgba(255, 88, 116, 0.95);
     border-radius: 50%;
@@ -610,6 +610,8 @@ main {
     opacity: 0;
     animation: eyeTargetPulse 10s infinite;
 }
+
+
 
 .overlay-target-eye::before,
 .overlay-target-eye::after {
