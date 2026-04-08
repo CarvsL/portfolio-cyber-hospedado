@@ -1,0 +1,38 @@
+Construção e Análise de um Laboratório Purple Team: Da Reverse Shell à Engenharia de Detecção.
+
+A transição de carreira para a Cibersegurança exige mais do que teoria; exige provar competência prática. Para consolidar meus estudos na pós-graduação em Cyber Offensive e aplicar meu background de Desenvolvimento Full Stack e Infraestrutura, desenvolvi um laboratório simulando um ambiente corporativo real, com foco em emulação de ataques e validação de defesa utilizando o framework MITRE ATT&CK.
+
+O cenário foi estruturado em três frentes:
+
+Emulação Ofensiva (Red Team)
+
+Execução de payload via PowerShell (Invoke-WebRequest) para obtenção de Reverse Shell (Meterpreter).
+
+Escalação de privilégios para NT AUTHORITY\SYSTEM.
+
+Persistência através da criação de um usuário oculto inserido no grupo de Administradores locais.
+
+Defesa e Monitoramento (Blue Team)
+
+Implementação e configuração do Wazuh (SIEM) para monitoramento da cadeia de ataque em tempo real.
+
+Triage Forense
+
+Correlação de eventos e análise detalhada dos logs via Windows Event Channel.
+
+O Resultado da Detecção:
+A engenharia de detecção foi um sucesso. O SIEM conseguiu rastrear toda a kill chain e disparou os alertas críticos com precisão:
+
+Alerta Nível 15 (Regra 92213): Executável dropado em pasta comumente usada por malwares (T1105).
+
+Alerta Nível 12 (Regra 60154): Modificação do grupo de Administradores (T1484 - Escalação de Privilégio).
+
+Alerta Nível 8 (Regra 60109): Criação de conta de usuário não autorizada.
+
+Documentei todo esse processo. Os vídeos práticos do ataque e da detecção, além da topologia da rede segura (com segmentação de VLANs e firewall Cisco ASA), estão publicados no meu portfólio pessoal.
+
+🔗 https://lucascarvs.com.br
+
+Sigo focado e em busca da minha primeira oportunidade oficial como Analista de SOC / Blue Team. Se você trabalha na área, adoraria ouvir seu feedback técnico sobre o laboratório.
+
+#Ciberseguranca #PurpleTeam #BlueTeam #RedTeam #SOC #Wazuh #SIEM #InfoSec #CyberSecurity
