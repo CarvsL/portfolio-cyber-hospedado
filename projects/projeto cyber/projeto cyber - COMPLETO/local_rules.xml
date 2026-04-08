@@ -1,0 +1,47 @@
+<!-- Local rules -->
+
+<!-- Modify it at your will. -->
+<!-- Copyright (C) 2015, Wazuh Inc. -->
+
+<!-- Example -->
+<group name="local,syslog,sshd,">
+
+  <!--
+  Dec 10 01:02:02 host sshd[1234]: Failed none for root from 1.1.1.1 port 1066 ssh2
+  -->
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+  
+  <rule id="100002" level="12">
+    <if_sid>60106</if_sid>
+    <field name="win.eventdata.targetUserName">^Administrator$|^Administrador$|^EMPRESA$</field>
+    <description>ALERTA CRITICO: Logon do usuario EMPRESA detectado na maquina $(win.system.computer)</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+  </rule>
+
+</group>
+
+<group name="windows,firewall,">
+  
+  <rule id="100003" level="3">
+    <if_sid>60104</if_sid>
+    <field name="win.system.eventID">5152</field>
+    <description>Firewall Drop: Pacote bloqueado do IP $(win.eventdata.sourceAddress)</description>
+  </rule>
+
+  <rule id="100004" level="14" frequency="30" timeframe="60">
+    <if_matched_sid>100003</if_matched_sid>
+    <same_field>win.eventdata.sourceAddress</same_field>
+    <description>ALERTA CRÍTICO: Ataque de Port Scan detectado do IP $(win.eventdata.sourceAddress)</description>
+    <mitre>
+      <id>T1046</id>
+    </mitre>
+  </rule>
+
+</group>

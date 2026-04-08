@@ -1,0 +1,103 @@
+ARQUITETURA - Topologia do Laboratório: Virtualização de Ambientes de Ataque, Defesa e Monitoramento
+Infraestrutura de Red Team e Blue Team (VirtualBox)
+
+Visão geral da infraestrutura do laboratório rodando em ambiente isolado no Oracle VirtualBox, simulando uma rede corporativa moderna. Como pode ser observado na imagem as 3 maquinas virtuais.png, o ambiente é composto por três sistemas operacionais distintos integrados na mesma rede virtual.
+
+💻 Componentes da Topologia (Visíveis em as 3 maquinas virtuais.png):
+
+Kali Linux: Estação ofensiva (Red Team) configurada com Metasploit, Nmap e ferramentas de geração de payloads.
+
+SIEM Wazuh: Servidor central (Manager) baseado em Ubuntu, responsável por receber logs, correlacionar eventos e gerenciar as respostas automatizadas.
+
+Windows 11: O Endpoint alvo (Vítima) protegido pelo agente Wazuh e configurado com Sysmon para fornecer telemetria profunda de kernel e processos.
+
+CONFIGURAÇÃO - Regras Customizadas para Identificação de Port Scan (local_rules.xml)
+Lógica de Correlação para Identificação de Varreduras Agressivas
+
+Configuração das regras personalizadas no Wazuh Manager para transformar logs de firewall em inteligência de ataque. A imagem rule port scan.png mostra o trecho do arquivo local_rules.xml onde estabeleci a lógica de detecção.
+
+🔍 Detalhamento das Regras (Ver rule port scan.png):
+
+Rule ID 100003: Monitora pacotes bloqueados individualmente pelo Windows Firewall (Event ID 5152).
+
+Rule ID 100004: Alerta de alta prioridade (Nível 14). Utiliza correlação por frequência: caso 30 pacotes sejam bloqueados do mesmo IP em 60 segundos, o SIEM classifica a atividade como um Ataque de Port Scan e aciona o gatilho para a resposta ativa.
+
+AUTOMAÇÃO - Integração e Execução de Resposta Ativa no Wazuh
+Definição da Automação de Defesa e Script de Bloqueio
+
+Nesta seção, abordo a inteligência por trás da defesa automatizada. A imagem active response.png ilustra o trecho do arquivo ossec.conf no Manager, onde configurei o gatilho para que a regra de Port Scan (100004) acione o comando de bloqueio.
+
+O "músculo" dessa defesa é o script customizado visível na imagem script de Active Response.png (denominado soc-block.cmd).
+
+🛠️ Funcionamento Técnico do Script (script de Active Response.png):
+
+Extração de IOCs: O script recebe o alerta em formato JSON e usa PowerShell para isolar o IP exato do atacante (sourceAddress).
+
+Mitigação Imediata: Executa o comando netsh advfirewall para criar uma regra de bloqueio total no Windows Firewall especificamente para o IP malicioso identificado, cortando a comunicação do atacante em tempo real.
+
+DEFESA ATIVA - SOC Bloqueando Port Scan (Nmap) Automaticamente com Wazuh
+Automação de Resposta a Incidentes em Tempo Real
+
+Este vídeo demonstra uma das capacidades mais poderosas de um Centro de Operações de Segurança (SOC) maduro: a resposta automatizada a incidentes (Active Response) através do Wazuh. O vídeo nmap bloqueado!.mp4 registra todo o ciclo, desde a detecção até a mitigação.
+
+🛡️ O Cenário de Defesa (Demonstrado em nmap bloqueado!.mp4):
+
+A Ameaça: O Red Team (Kali Linux) inicia uma varredura agressiva de portas (Nmap) contra o endpoint Windows 11.
+
+A Resposta Automatizada: O agente Wazuh capta o comportamento, o Manager dispara o script soc-block.cmd e a comunicação do IP do atacante é totalmente interrompida.
+
+A Prova do Bloqueio: Os testes subsequentes de "ping" realizados no vídeo confirmam que o atacante perdeu acesso à vítima, neutralizando a ameaça em segundos de forma autônoma.
+
+MONITORAMENTO - Regras Customizadas para Detecção de Login Administrativo
+Vigilância sobre Contas Sensíveis e Acessos Privilegiados
+
+Configuração de regras para monitorar logins de usuários com altos privilégios, visando detectar roubo de credenciais ou movimentação lateral. A imagem rule login admin.png mostra a implementação dessas regras no arquivo local_rules.xml.
+
+🔍 Detalhamento das Regras (Ver rule login admin.png):
+
+Rule ID 100002: Alerta de nível crítico (12) disparado quando logins bem-sucedidos dos usuários "Administrator", "Administrador" ou "EMPRESA" são detectados no sistema, mapeando para a técnica MITRE T1078 (Valid Accounts).
+
+ATAQUE 1 - Red Team em Ação: Tentativa de Acesso Inicial e Bloqueio por Endpoint Protection
+Simulação de Acesso Inicial e o Confronto com o Windows Defender
+
+Neste vídeo, demonstro a primeira fase de um compromisso de segurança: a tentativa de obter Acesso Inicial (Initial Access) num ambiente Windows 11. O vídeo ataque1.mp4 ilustra perfeitamente por que razão as ferramentas de ataque padrão já não são suficientes.
+
+💻 Passo a Passo da Simulação (Demonstrado em ataque1.mp4):
+
+Ação: Geração de payload com msfvenom (payload.exe) e tentativa de download na vítima.
+
+Reação: O Windows Defender detecta a assinatura e bloqueia o download instantaneamente.
+
+Evasão (Emulação): Para continuidade do lab, a proteção é desativada manualmente para simular o uso bem-sucedido de uma técnica de evasão avançada (Zero-day) e estabelecer a sessão Meterpreter.
+
+📊 Visibilidade no SIEM (Wazuh):
+Como evidenciado na imagem siem alerta executable file dropped.png, o ataque não passou despercebido. O SIEM registrou o alerta de telemetria do Sysmon correspondente à criação do arquivo executável suspeito no disco, demonstrando que o monitoramento de integridade funcionou.
+
+ATAQUE 2 - Bypass UAC e Criação de Conta Furtiva: Escalando Privilégios com Comandos Nativos (LotL)
+Escalação de Privilégios e Persistência através de Living off the Land
+
+Após obter o acesso inicial, o atacante busca controle total do sistema. O vídeo ataque2.mp4 detalha o processo de Escalação de Privilégios (Privilege Escalation) e a criação de persistência de forma furtiva.
+
+⚙️ Técnicas Demonstradas (Em ataque2.mp4):
+
+Bypass UAC: Uso do exploit fodhelper para elevar a sessão Meterpreter ao nível de SYSTEM.
+
+Living off the Land (LotL): Uso de uma shell interativa e comandos nativos do Windows (net user e net localgroup) para criar o usuário "hackerzinho" e adicioná-lo ao grupo de Administradores, evitando módulos de malware que gerariam alertas de assinatura.
+
+🔍 Análise Forense no SIEM:
+A evidência técnica do sucesso do ataque pode ser vista nas imagens de alerta do Wazuh. A imagem siem alerta user account created.png confirma o registro do Event ID 4720 (Criação de conta), enquanto a imagem siem alerta administrator group changed.png documenta o Event ID 4732 (Grupo de administradores alterado), validando que o monitoramento comportamental detectou o uso malicioso de ferramentas legítimas.
+
+ANALISE - Análise Forense em SIEM: Detectando Persistência e Privilege Escalation no Wazuh
+Análise Forense e Triage de Alertas em Ambiente SOC (Wazuh)
+
+Neste trecho prático do meu laboratório, realizo a análise forense pós-comprometimento de um endpoint Windows 11. O vídeo Análise.mp4 demonstra a visibilidade do Blue Team e a capacidade de investigação profunda (drill-down) através do Wazuh.
+
+🔍 O que está sendo analisado no vídeo (Análise.mp4):
+
+Triage de Alertas: Identificação de alertas críticos de segurança gerados durante a fase de Pós-Exploração do ataque vistos anteriormente.
+
+Drill-down Forense (JSON): Inspeção profunda dos logs brutos gerados pelo agente do Wazuh para extrair Indicadores de Comprometimento (IOCs), como SIDs de usuários e nomes de processos.
+
+Mapeamento MITRE ATT&CK: Confirmação das táticas de Persistência (T1098) e Privilege Escalation (T1078) através da análise dos logs nativos de auditoria do Windows.
+
+A imagem Screenshot 2026-04-07 134554.jpg fornece uma visão estática detalhada de um desses alertas no dashboard, ilustrando o nível de detalhe disponível para o analista durante a investigação documentada no vídeo.
