@@ -151,6 +151,36 @@
             ]
         },
         {
+            id: 'proj-devsec-healthapi',
+            title: 'HealthAPI DevSecOps Lab: Fuzzer, SAST & Secure Coding',
+            category: 'devsecops',
+            categoryLabel: 'DevSecOps',
+            displayTags: ['Red Team', 'Blue Team'],
+            summary: 'Laboratorio AppSec com SQL Injection, fuzzing ofensivo, SAST com Bandit e mitigacao por prepared statements.',
+            description: 'Projeto de DevSecOps aplicado em uma API da area da saude, cobrindo o ciclo completo de ataque, deteccao e defesa. O escopo une a visao ofensiva com Fuzzer e exploracao de SQL Injection (Red Team) com a visao defensiva de AppSec, usando SAST no Bandit e correcao segura no codigo (Blue Team).',
+            docs: [
+                'Emulacao de SQL Injection (OWASP A03) e validacao de impacto',
+                'Automacao ofensiva com fuzzer para multiplos endpoints',
+                'Deteccao SAST com Bandit e analise de CWE-89',
+                'Mitigacao definitiva com prepared statements e reteste'
+            ],
+            githubDocPath: 'README.md',
+            readmePath: 'projects/projeto devsec/health_lab/README.md',
+            repoUrl: 'https://github.com/CarvsL/HealthAPI-DevSecOps-Lab',
+            media: [
+                { type: 'image', label: 'Documentacao da API (Swagger)', src: 'projects/projeto devsec/health_lab/pictures/API.png' },
+                { type: 'image', label: 'Ataque SQL Injection na Interface', src: 'projects/projeto devsec/health_lab/pictures/SQLquebrado.png' },
+                { type: 'image', label: 'Ataque Bloqueado apos Correcao', src: 'projects/projeto devsec/health_lab/pictures/SQLdefendido.png' },
+                { type: 'image', label: 'Bandit: Vulnerabilidade Detectada', src: 'projects/projeto devsec/health_lab/pictures/bandit.png' },
+                { type: 'image', label: 'Bandit: Comparativo Codigo Vulneravel x Corrigido', src: 'projects/projeto devsec/health_lab/pictures/banditnasduas.png' },
+                { type: 'image', label: 'Fuzzer em Ambiente Vulneravel', src: 'projects/projeto devsec/health_lab/pictures/fuzzernafalha.png' },
+                { type: 'image', label: 'Fuzzer Neutralizado apos Mitigacao', src: 'projects/projeto devsec/health_lab/pictures/fuzzernacorrigida.png' },
+                { type: 'image', label: 'Codigo Corrigido com Prepared Statements', src: 'projects/projeto devsec/health_lab/pictures/maincorrigida.png' },
+                { type: 'image', label: 'Codigo Vulneravel (SQL Injection)', src: 'projects/projeto devsec/health_lab/pictures/mainfalha.png' },
+                { type: 'image', label: 'Validacao de Busca Legitima', src: 'projects/projeto devsec/health_lab/pictures/pesquisandoJoaoSilva.png' }
+            ]
+        },
+        {
             id: 'proj-cyber-forense',
             title: 'Full-Stack Cyber Defense Lab: Forensics Scope',
             category: 'forense',
@@ -844,7 +874,10 @@
                 .map((tag) => normalizeFilter(tag));
 
             return projectFilters.includes(activeFilter);
-        });
+        }).sort((projectA, projectB) => projectA.title.localeCompare(projectB.title, 'pt-BR', {
+            sensitivity: 'base',
+            numeric: true
+        }));
 
         projectsGrid.innerHTML = filtered.map((project) => `
             <article class="project-card" data-project-id="${project.id}" data-category="${project.category}">
