@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthAPI - Prontuários</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        button { padding: 12px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #2980b9; }
+        .result-card { background-color: #ecf0f1; padding: 15px; margin-bottom: 10px; border-left: 5px solid #27ae60; border-radius: 4px; }
+        .log-box { background-color: #2c3e50; color: #ecf0f1; padding: 10px; font-family: monospace; border-radius: 5px; font-size: 14px; margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏥 HealthAPI - Consulta de Pacientes</h1>
+    
+    <div class="search-box">
+        <input type="text" id="patientName" placeholder="Digite o nome do paciente (ex: Joao Silva)">
+        <button onclick="buscarPaciente()">Buscar Prontuário</button>
+    </div>
+
+    <div id="logArea" style="display: none;">
+        <strong>Log do Backend (Query Executada):</strong>
+        <div class="log-box" id="queryLog"></div>
+    </div>
+
+    <h3>Resultados:</h3>
+    <div id="resultsArea">
+        <p style="color: #7f8c8d;">Nenhuma busca realizada ainda.</p>
+    </div>
+</div>
+
+<script>
+    async function buscarPaciente() {
+        const nome = document.getElementById('patientName').value;
+        const resultsArea = document.getElementById('resultsArea');
+        const queryLog = document.getElementById('queryLog');
+        const logArea = document.getElementById('logArea');
+
+        if (!nome) {
+            alert("Por favor, digite um nome.");
+            return;
+        }
+
+        resultsArea.innerHTML = "<p>Buscando dados no servidor...</p>";
+
+        try {
+            // Chamando a nossa API em Python!
+            const response = await fetch(`http://localhost:8000/api/patients?name=${encodeURIComponent(nome)}`);
+            const data = await response.json();
+
+            // Mostrando o log da Query (Legal para mostrar pro recrutador)
+            if(data.query_executada) {
+                logArea.style.display = "block";
+                queryLog.innerText = data.query_executada;
+            }
+
+            // Exibindo os resultados
+            if (data.resultados && data.resultados.length > 0) {
+                resultsArea.innerHTML = "";
+                data.resultados.forEach(paciente => {
+                    resultsArea.innerHTML += `
+                        <div class="result-card">
+                            <strong>ID:</strong> ${paciente[0]} <br>
+                            <strong>Nome:</strong> ${paciente[1]} <br>
+                            <strong>Diagnóstico:</strong> ${paciente[2]}
+                        </div>
+                    `;
+                });
+            } else {
+                resultsArea.innerHTML = "<p style='color: #e74c3c;'>Nenhum paciente encontrado com este nome.</p>";
+            }
+
+        } catch (error) {
+            resultsArea.innerHTML = `<p style='color: red;'>Erro de conexão: Verifique se a API está rodando na porta 8000 e com o CORS configurado.</p>`;
+        }
+    }
+</script>
+
+</body>
+</html>
